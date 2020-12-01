@@ -59,7 +59,7 @@ def stations():
     session = Session(engine)
     stations = session.query(Station)
     session.close()
-    
+
     # build a dictionary
     stationList = []
     for station in stations:
@@ -77,7 +77,16 @@ def stations():
 
 @app.route("/api/v1.0/tobs")
 def tobs():
-    return 
+    # query
+    session = Session(engine)
+    activeStation = session.query(func.count(Measurement.station), Measurement.station).group_by(Measurement.station).order_by(desc(func.count(Measurement.station))).all()[0][1]
+    activeLast = session.query(Measurement.tobs).filter(Measurement.station==activeStation).filter(Measurement.date > searchDate).all()
+    session.close()
+
+    # make it a list
+    activeLast = list(np.ravel(activeLast))
+
+    return jsonify(activeLast)
 
 @app.route("/api/v1.0/<start>")
 def startDate(start):
