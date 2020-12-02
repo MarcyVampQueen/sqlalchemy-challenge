@@ -17,6 +17,7 @@ Base.prepare(engine, reflect=True)
 # Save references to each table
 Measurement = Base.classes.measurement
 Station = Base.classes.station
+statsToUse = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
 
 # Calculate the date 1 year ago from the last data point in the database
 initialSesh = Session(engine)
@@ -92,7 +93,7 @@ def tobs():
 def startDate(start):
     # query
     session = Session(engine)
-    stats = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start).first()
+    stats = session.query(*statsToUse).filter(Measurement.date >= start).first()
     session.close()
 
     # build a dictionary
@@ -108,7 +109,7 @@ def startDate(start):
 def endDate(start,end):
     # query
     session = Session(engine)
-    stats = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start, Measurement.date <= end).first()
+    stats = session.query(*statsToUse).filter(Measurement.date >= start, Measurement.date <= end).first()
     session.close()
 
     # build a dictionary
