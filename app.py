@@ -90,11 +90,35 @@ def tobs():
 
 @app.route("/api/v1.0/<start>")
 def startDate(start):
-    return 
+    # query
+    session = Session(engine)
+    stats = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start).first()
+    session.close()
+
+    # build a dictionary
+    statList =  {
+            'min': stats[0],
+            'avg': stats[2], 
+            'max': stats[1]
+        }
+
+    return jsonify(statList)
 
 @app.route("/api/v1.0/<start>/<end>")
 def endDate(start,end):
-    return 
+    # query
+    session = Session(engine)
+    stats = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start, Measurement.date <= end).first()
+    session.close()
+
+    # build a dictionary
+    statList =  {
+            'min': stats[0],
+            'avg': stats[2], 
+            'max': stats[1]
+        }
+
+    return jsonify(statList) 
 
 # Run it
 if __name__ == '__main__':
